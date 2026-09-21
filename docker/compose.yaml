@@ -1,0 +1,55 @@
+name: ${COMPOSE_PROJECT_NAME:-amp}
+
+services:
+  dev:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        ROS_IMAGE: ${ROS_IMAGE:-osrf/ros:lyrical-desktop-resolute}
+        ROS_DISTRO: ${ROS_DISTRO:-lyrical}
+        CUDA_REPO_VERSION: ${CUDA_REPO_VERSION:-13-4}
+        PYTORCH_VERSION: ${PYTORCH_VERSION:-2.14.0}
+        PYTORCH_INDEX_URL: ${PYTORCH_INDEX_URL:-https://download.pytorch.org/whl/cu132}
+        DEV_USER: ${DEV_USER:-ubuntu}
+        DEV_UID: ${DEV_UID:-1000}
+        DEV_GID: ${DEV_GID:-1000}
+    image: amp-ros2-${ROS_DISTRO:-lyrical}-cuda:local
+    working_dir: /workspaces/amp
+    stdin_open: true
+    tty: true
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    network_mode: ${AMP_NETWORK_MODE:-host}
+    ipc: host
+    environment:
+      ROS_DISTRO: ${ROS_DISTRO:-lyrical}
+      NVIDIA_VISIBLE_DEVICES: ${AMP_NVIDIA_VISIBLE_DEVICES:-all}
+      NVIDIA_DRIVER_CAPABILITIES: ${AMP_NVIDIA_DRIVER_CAPABILITIES:-compute,utility}
+      DEV_USER: ${DEV_USER:-ubuntu}
+      DEV_UID: ${DEV_UID:-1000}
+      DEV_GID: ${DEV_GID:-1000}
+      RMW_IMPLEMENTATION: rmw_fastrtps_cpp
+      ROS_AUTOMATIC_DISCOVERY_RANGE: ${ROS_AUTOMATIC_DISCOVERY_RANGE:-SUBNET}
+      ROS_STATIC_PEERS: ${ROS_STATIC_PEERS:-}
+      ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-0}
+    volumes:
+      - ..:/workspaces/amp:rw
+      - amp-build:/workspaces/amp/build
+      - amp-install:/workspaces/amp/install
+      - amp-log:/workspaces/amp/log
+      - amp-colcon-cache:/home/${DEV_USER:-ubuntu}/.colcon
+      - amp-rosdep-cache:/home/${DEV_USER:-ubuntu}/.ros
+    command: ["bash"]
+
+volumes:
+  amp-build:
+  amp-install:
+  amp-log:
+  amp-colcon-cache:
+  amp-rosdep-cache:

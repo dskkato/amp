@@ -1,0 +1,8 @@
+services:
+  dev:
+    environment:
+      DISPLAY: ${DISPLAY:-:0}
+      QT_X11_NO_MITSHM: "1"
+      NVIDIA_DRIVER_CAPABILITIES: ${AMP_NVIDIA_DRIVER_CAPABILITIES:-compute,utility,graphics,display}
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
