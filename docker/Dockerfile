@@ -28,6 +28,7 @@ RUN test "${TARGETARCH:-amd64}" = "amd64" \
       ca-certificates \
       curl \
       gnupg \
+      libjpeg-dev \
       python3-pip \
       python3-venv \
     && curl -fsSLo /tmp/cuda-keyring.deb \

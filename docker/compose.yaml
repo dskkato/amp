@@ -25,6 +25,10 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
+    devices:
+      - ${AMP_CAMERA_DEVICE:-/dev/video0}:${AMP_CAMERA_DEVICE:-/dev/video0}
+    group_add:
+      - ${AMP_VIDEO_GID:-44}
     network_mode: ${AMP_NETWORK_MODE:-host}
     ipc: host
     environment:
