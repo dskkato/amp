@@ -15,6 +15,25 @@ The host needs Docker Compose and an NVIDIA Container Toolkit-enabled Docker
 runtime. Verify the runtime before building with `docker run --rm --gpus all
 nvidia/cuda:13.4.1-base-ubuntu26.04 nvidia-smi`.
 
+### Source layout
+
+This is a monorepo workspace. `src/v4l2_camera` is maintained by the root
+project, while the reusable buffer implementations are pinned as Git
+submodules:
+
+```text
+src/
+├── rosidl_buffer_backends/  # git submodule
+├── shared_buffer_backend/   # git submodule
+└── v4l2_camera/             # root-project package
+```
+
+After cloning, initialize the external packages with:
+
+```bash
+git submodule update --init --recursive
+```
+
 The container receives `NVIDIA_VISIBLE_DEVICES=all` and
 `NVIDIA_DRIVER_CAPABILITIES=compute,utility` from Compose. Override them with
 `AMP_NVIDIA_VISIBLE_DEVICES` or `AMP_NVIDIA_DRIVER_CAPABILITIES` when needed.

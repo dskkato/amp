@@ -1,0 +1,7 @@
+[submodule "src/rosidl_buffer_backends"]
+	path = src/rosidl_buffer_backends
+	url = https://github.com/dskkato/rosidl_buffer_backends.git
+
+[submodule "src/shared_buffer_backend"]
+	path = src/shared_buffer_backend
+	url = https://github.com/dskkato/shared_buffer_backend.git

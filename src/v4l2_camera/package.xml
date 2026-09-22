@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>v4l2_camera</name>
+  <version>0.1.0</version>
+  <description>V4L2 camera publisher for sensor_msgs/msg/Image.</description>
+
+  <maintainer email="kato.daisuke429@gmail.com">dskkato</maintainer>
+  <license>Apache-2.0</license>
+  <author email="kato.daisuke429@gmail.com">dskkato</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
+  <depend>sensor_msgs</depend>
+  <depend>shared_buffer</depend>
+  <depend>cuda_buffer</depend>
+  <exec_depend>cuda_buffer_backend</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>shared_buffer_backend_py</exec_depend>
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

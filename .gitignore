@@ -1,5 +1,6 @@
-# Source repositories are managed independently.
-/src/
+# These ROS packages are managed as root-project git submodules.
+/src/rosidl_buffer_backends/
+/src/shared_buffer_backend/
 
 # ROS/colcon generated artifacts.
 /build/
