@@ -4,10 +4,11 @@
 
 #include <cuda_runtime.h>
 
-#include <chrono>
 #include <algorithm>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
+#include <exception>
 #include <iostream>
 #include <memory>
 #include <string>
@@ -19,14 +20,14 @@
 #include "rclcpp/subscription_options.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-namespace v4l2_camera
+namespace ros2topic_hz
 {
 
 class CudaHz : public rclcpp::Node
 {
 public:
   CudaHz(const std::string & topic, double interval)
-  : Node("v4l2_camera_cuda_hz"), last_time_(std::chrono::steady_clock::now())
+  : Node("ros2topic_cuda_hz"), last_time_(std::chrono::steady_clock::now())
   {
     CUDA_CHECK(cudaStreamCreate(&stream_));
     rclcpp::SubscriptionOptions options;
@@ -114,7 +115,7 @@ private:
   Clock::time_point last_time_;
 };
 
-}  // namespace v4l2_camera
+}  // namespace ros2topic_hz
 
 namespace
 {
@@ -141,7 +142,13 @@ int main(int argc, char ** argv)
       if (remaining_args[i] == "--topic") {
         topic = remaining_args[++i];
       } else {
-        interval = std::stod(remaining_args[++i]);
+        try {
+          interval = std::stod(remaining_args[++i]);
+        } catch (const std::exception &) {
+          print_usage(argv[0]);
+          rclcpp::shutdown();
+          return 1;
+        }
       }
     } else if (remaining_args[i] == "--help" || remaining_args[i] == "-h") {
       print_usage(argv[0]);
@@ -155,7 +162,7 @@ int main(int argc, char ** argv)
     return 1;
   }
 
-  auto node = std::make_shared<v4l2_camera::CudaHz>(topic, interval);
+  auto node = std::make_shared<ros2topic_hz::CudaHz>(topic, interval);
   rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;

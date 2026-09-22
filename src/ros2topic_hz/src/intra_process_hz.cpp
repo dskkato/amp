@@ -4,24 +4,30 @@
 
 #include <chrono>
 #include <cstddef>
+#include <map>
 #include <memory>
+#include <string>
 
 #include "rclcpp/rclcpp.hpp"
 #include "sensor_msgs/msg/image.hpp"
 #include "v4l2_camera/v4l2_camera_node.hpp"
 
-namespace v4l2_camera
+namespace ros2topic_hz
 {
 
 class IntraProcessHz : public rclcpp::Node
 {
 public:
   explicit IntraProcessHz(const rclcpp::NodeOptions & options)
-  : Node("v4l2_camera_intra_process_hz", options), last_time_(std::chrono::steady_clock::now())
+  : Node("ros2topic_intra_process_hz", options),
+    last_time_(std::chrono::steady_clock::now())
   {
     subscription_ = create_subscription<sensor_msgs::msg::Image>(
       "/image_raw", rclcpp::SensorDataQoS(),
-      [this](sensor_msgs::msg::Image::ConstSharedPtr) {++message_count_;});
+      [this](sensor_msgs::msg::Image::ConstSharedPtr message) {
+        ++message_count_;
+        ++backend_counts_[message->data.get_backend_type()];
+      });
     timer_ = create_wall_timer(std::chrono::seconds(1), [this]() {report();});
   }
 
@@ -32,19 +38,32 @@ private:
     const double elapsed = std::chrono::duration<double>(now - last_time_).count();
     const auto count = message_count_;
     const double rate = elapsed > 0.0 ? static_cast<double>(count) / elapsed : 0.0;
+    std::string backends;
+    for (const auto & [backend, backend_count] : backend_counts_) {
+      if (!backends.empty()) {
+        backends += ", ";
+      }
+      backends += backend + ": " + std::to_string(backend_count);
+    }
+    if (backends.empty()) {
+      backends = "none";
+    }
     RCLCPP_INFO(
-      get_logger(), "received: %zu, rate: %.3f Hz, elapsed: %.6f s", count, rate, elapsed);
+      get_logger(), "received: %zu, rate: %.3f Hz, backends: %s, elapsed: %.6f s",
+      count, rate, backends.c_str(), elapsed);
     message_count_ = 0;
+    backend_counts_.clear();
     last_time_ = now;
   }
 
   std::size_t message_count_{0};
+  std::map<std::string, std::size_t> backend_counts_;
   std::chrono::steady_clock::time_point last_time_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 
-}  // namespace v4l2_camera
+}  // namespace ros2topic_hz
 
 int main(int argc, char ** argv)
 {
@@ -65,7 +84,7 @@ int main(int argc, char ** argv)
   monitor_options.use_intra_process_comms(true);
 
   auto camera = std::make_shared<v4l2_camera::V4L2CameraNode>(camera_options);
-  auto monitor = std::make_shared<v4l2_camera::IntraProcessHz>(monitor_options);
+  auto monitor = std::make_shared<ros2topic_hz::IntraProcessHz>(monitor_options);
 
   rclcpp::executors::SingleThreadedExecutor executor;
   executor.add_node(camera);

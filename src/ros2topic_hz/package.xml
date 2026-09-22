@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>ros2topic_hz</name>
+  <version>0.1.0</version>
+  <description>Image topic frequency subscribers with rosidl buffer backend reporting.</description>
+
+  <maintainer email="kato.daisuke429@gmail.com">dskkato</maintainer>
+  <license>Apache-2.0</license>
+  <author email="kato.daisuke429@gmail.com">dskkato</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>cuda_buffer</depend>
+  <depend>v4l2_camera</depend>
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>shared_buffer_backend</exec_depend>
+  <exec_depend>shared_buffer_backend_py</exec_depend>
+  <exec_depend>cuda_buffer_backend</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

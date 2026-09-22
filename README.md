@@ -25,6 +25,7 @@ submodules:
 src/
 ├── rosidl_buffer_backends/  # git submodule
 ├── shared_buffer_backend/   # git submodule
+├── ros2topic_hz/             # root-project subscriber benchmark package
 └── v4l2_camera/             # root-project package
 ```
 

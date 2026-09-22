@@ -43,21 +43,6 @@ rclcpp_components_register_nodes(v4l2_camera_component
 add_executable(v4l2_camera_node src/main.cpp)
 target_link_libraries(v4l2_camera_node v4l2_camera_component rclcpp::rclcpp)
 
-add_executable(v4l2_camera_intra_process_hz src/intra_process_hz.cpp)
-target_link_libraries(
-  v4l2_camera_intra_process_hz
-  v4l2_camera_component
-  rclcpp::rclcpp
-  ${sensor_msgs_TARGETS}
-)
-
-add_executable(v4l2_camera_inter_process_hz src/inter_process_hz.cpp)
-target_link_libraries(
-  v4l2_camera_inter_process_hz
-  rclcpp::rclcpp
-  ${sensor_msgs_TARGETS}
-)
-
 install(
   DIRECTORY include/
   DESTINATION include
@@ -67,22 +52,21 @@ install(
   TARGETS
     v4l2_camera_component
     v4l2_camera_node
-    v4l2_camera_intra_process_hz
-    v4l2_camera_inter_process_hz
+  EXPORT v4l2_camera_targets
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
 install(
-  DIRECTORY launch/
-  DESTINATION share/${PROJECT_NAME}/launch
+  EXPORT v4l2_camera_targets
+  FILE v4l2_camera_targets.cmake
+  DESTINATION share/${PROJECT_NAME}/cmake
 )
 
 install(
-  PROGRAMS scripts/shared_buffer_hz.py
-  DESTINATION lib/${PROJECT_NAME}
-  RENAME shared_buffer_hz
+  DIRECTORY launch/
+  DESTINATION share/${PROJECT_NAME}/launch
 )
 
 if(BUILD_TESTING)
@@ -97,9 +81,9 @@ if(BUILD_TESTING)
   endif()
 endif()
 
-ament_export_dependencies(rclcpp rclcpp_components sensor_msgs shared_buffer)
+ament_export_dependencies(rclcpp rclcpp_components sensor_msgs shared_buffer JPEG)
 ament_export_include_directories(include)
-ament_export_libraries(v4l2_camera_component)
+ament_export_targets(v4l2_camera_targets HAS_LIBRARY_TARGET)
 
 if(CMAKE_CUDA_COMPILER)
   enable_language(CUDA)
@@ -136,19 +120,11 @@ if(CMAKE_CUDA_COMPILER)
     rclcpp::rclcpp
   )
 
-  add_executable(v4l2_camera_cuda_hz src/cuda_hz.cpp)
-  target_link_libraries(v4l2_camera_cuda_hz
-    rclcpp::rclcpp
-    ${sensor_msgs_TARGETS}
-    cuda_buffer::cuda_buffer
-    CUDA::cudart
-  )
-
   install(
     TARGETS
       v4l2_camera_cuda_component
       v4l2_camera_cuda_node
-      v4l2_camera_cuda_hz
+    EXPORT v4l2_camera_targets
     ARCHIVE DESTINATION lib
     LIBRARY DESTINATION lib
     RUNTIME DESTINATION lib/${PROJECT_NAME}

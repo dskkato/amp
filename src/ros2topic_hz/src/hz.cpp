@@ -4,35 +4,39 @@
 
 #include <chrono>
 #include <cstddef>
+#include <exception>
 #include <iostream>
+#include <map>
 #include <memory>
+#include <sstream>
 #include <string>
+#include <utility>
 
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/subscription_options.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-namespace v4l2_camera
+namespace ros2topic_hz
 {
 
-class InterProcessHz : public rclcpp::Node
+class ImageHz : public rclcpp::Node
 {
 public:
-  InterProcessHz(
-    const std::string & topic, double interval, const std::string & acceptable_buffer_backend)
-  : Node("v4l2_camera_inter_process_hz"),
+  ImageHz(const std::string & topic, double interval, const std::string & acceptable_backend)
+  : Node("ros2topic_hz"),
     topic_(topic),
     interval_(interval),
     last_time_(std::chrono::steady_clock::now())
   {
     rclcpp::SubscriptionOptions options;
-    if (!acceptable_buffer_backend.empty()) {
-      options.acceptable_buffer_backends = acceptable_buffer_backend;
+    if (!acceptable_backend.empty()) {
+      options.acceptable_buffer_backends = acceptable_backend;
     }
 
     subscription_ = create_subscription<sensor_msgs::msg::Image>(
       topic_, rclcpp::SensorDataQoS(),
-      [this](sensor_msgs::msg::Image::ConstSharedPtr) {++message_count_;}, options);
+      [this](sensor_msgs::msg::Image::ConstSharedPtr message) {callback(std::move(message));},
+      options);
     timer_ = create_wall_timer(
       std::chrono::duration_cast<std::chrono::nanoseconds>(
         std::chrono::duration<double>(interval_)),
@@ -40,32 +44,55 @@ public:
 
     RCLCPP_INFO(
       get_logger(), "measuring '%s', interval %.3f s%s", topic_.c_str(), interval_,
-      acceptable_buffer_backend.empty() ? "" :
-      (", acceptable buffer backend: " + acceptable_buffer_backend).c_str());
+      acceptable_backend.empty() ? "" :
+      (", acceptable buffer backend: " + acceptable_backend).c_str());
   }
 
 private:
+  void callback(sensor_msgs::msg::Image::ConstSharedPtr message)
+  {
+    ++message_count_;
+    ++backend_counts_[message->data.get_backend_type()];
+  }
+
   void report()
   {
     const auto now = std::chrono::steady_clock::now();
     const double elapsed = std::chrono::duration<double>(now - last_time_).count();
     const auto count = message_count_;
     const double rate = elapsed > 0.0 ? static_cast<double>(count) / elapsed : 0.0;
+
+    std::ostringstream backend_summary;
+    bool first = true;
+    for (const auto & [backend, backend_count] : backend_counts_) {
+      if (!first) {
+        backend_summary << ", ";
+      }
+      backend_summary << backend << ": " << backend_count;
+      first = false;
+    }
+    if (first) {
+      backend_summary << "none";
+    }
+
     RCLCPP_INFO(
-      get_logger(), "received: %zu, rate: %.3f Hz, elapsed: %.6f s", count, rate, elapsed);
+      get_logger(), "received: %zu, rate: %.3f Hz, backends: %s, elapsed: %.6f s",
+      count, rate, backend_summary.str().c_str(), elapsed);
     message_count_ = 0;
+    backend_counts_.clear();
     last_time_ = now;
   }
 
   std::string topic_;
   double interval_;
   std::size_t message_count_{0};
+  std::map<std::string, std::size_t> backend_counts_;
   std::chrono::steady_clock::time_point last_time_;
   rclcpp::Subscription<sensor_msgs::msg::Image>::SharedPtr subscription_;
   rclcpp::TimerBase::SharedPtr timer_;
 };
 
-}  // namespace v4l2_camera
+}  // namespace ros2topic_hz
 
 namespace
 {
@@ -83,7 +110,7 @@ int main(int argc, char ** argv)
   const auto remaining_args = rclcpp::remove_ros_arguments(argc, argv);
 
   std::string topic = "/image_raw";
-  std::string acceptable_buffer_backend;
+  std::string acceptable_backend;
   double interval = 1.0;
   for (std::size_t i = 0; i < remaining_args.size(); ++i) {
     if (remaining_args[i] == "--topic" || remaining_args[i] == "--accept-buffer-backend" ||
@@ -98,7 +125,7 @@ int main(int argc, char ** argv)
       if (remaining_args[i] == "--topic") {
         topic = remaining_args[++i];
       } else if (remaining_args[i] == "--accept-buffer-backend") {
-        acceptable_buffer_backend = remaining_args[++i];
+        acceptable_backend = remaining_args[++i];
       } else {
         try {
           interval = std::stod(remaining_args[++i]);
@@ -123,8 +150,7 @@ int main(int argc, char ** argv)
     return 1;
   }
 
-  auto node = std::make_shared<v4l2_camera::InterProcessHz>(
-    topic, interval, acceptable_buffer_backend);
+  auto node = std::make_shared<ros2topic_hz::ImageHz>(topic, interval, acceptable_backend);
   rclcpp::spin(node);
   rclcpp::shutdown();
   return 0;

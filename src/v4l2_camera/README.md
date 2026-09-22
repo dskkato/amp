@@ -49,28 +49,28 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args \
 
 ## Frequency measurement
 
-The workspace includes the C++ `ros2topic_hz` package under `src/ros2topic_hz`.
+The workspace includes the `ros2topic_hz` package under `src/ros2topic_hz`.
 For inter-process communication, start the camera in one process and measure
-it from another process. The typed subscriber can explicitly accept the
-`shared_buffer` backend:
+it from another process. The generic Image subscriber reports the backend
+observed by each callback and can explicitly accept the `shared_buffer`
+backend:
 
 ```bash
 ros2 run v4l2_camera v4l2_camera_node --ros-args \
   -p pixel_format:=YUYV \
   -p use_shared_buffer:=true
 
-ros2 run v4l2_camera v4l2_camera_inter_process_hz \
+ros2 run ros2topic_hz ros2topic_hz \
   --topic /image_raw \
   --interval 1.0 \
   --accept-buffer-backend shared_buffer
 ```
 
-The equivalent Python measurement uses `rclpy`'s typed subscription with
-`acceptable_buffer_backends='shared_buffer'`. It reports both the rate and
-the backend observed by each callback:
+The equivalent Python measurement uses `rclpy`'s typed Image subscription
+with `acceptable_buffer_backends='shared_buffer'`:
 
 ```bash
-ros2 run v4l2_camera shared_buffer_hz \
+ros2 run ros2topic_hz ros2topic_shared_buffer_hz \
   --topic /image_raw \
   --interval 1.0
 ```
@@ -80,7 +80,7 @@ the camera publisher and a typed image subscriber in one process, with
 `use_shared_buffer=false` and the same 640x480 YUYV/30 fps settings:
 
 ```bash
-ros2 run v4l2_camera v4l2_camera_intra_process_hz
+ros2 run ros2topic_hz ros2topic_intra_process_hz
 ```
 
 ## CUDA path
@@ -98,7 +98,7 @@ ros2 run v4l2_camera v4l2_camera_cuda_node --ros-args \
   -p frame_rate:=30.0 \
   -p diagnostics:=true
 
-ros2 run v4l2_camera v4l2_camera_cuda_hz \
+ros2 run ros2topic_hz ros2topic_cuda_hz \
   --topic /image_raw \
   --interval 1.0
 ```
