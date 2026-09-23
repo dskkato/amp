@@ -17,6 +17,11 @@ def generate_launch_description():
             package='v4l2_camera',
             executable='v4l2_camera_node',
             name='v4l2_camera',
+            arguments=[
+                '--ros-args',
+                '--log-level',
+                'serialize_buffer_with_endpoint:=warn',
+            ],
             output='screen',
             parameters=[{
                 'video_device': LaunchConfiguration('video_device'),
