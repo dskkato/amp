@@ -35,6 +35,9 @@ After cloning, initialize the external packages with:
 git submodule update --init --recursive
 ```
 
+Initialize the submodules before building the image. The Docker build resolves
+and installs ROS package dependencies from the manifests under `src/`.
+
 The container receives `NVIDIA_VISIBLE_DEVICES=all` and
 `NVIDIA_DRIVER_CAPABILITIES=compute,utility` from Compose. Override them with
 `AMP_NVIDIA_VISIBLE_DEVICES` or `AMP_NVIDIA_DRIVER_CAPABILITIES` when needed.
@@ -89,14 +92,13 @@ ROS_IMAGE=osrf/ros:lyrical-desktop-resolute \
 ./scripts/docker-colcon-build.sh
 ```
 
-This runs `rosdep update`, refreshes the container's apt index, installs all
-dependencies declared by the packages under `src/`, and builds the complete
-workspace. This includes `ament_cmake_vendor_package` through rosdep. The
-`nvidia-cuda` rosdep key is skipped because CUDA is installed explicitly in
-the image. `pybind11-dev` is resolved normally through rosdep/apt.
-
-The build command uses a root-only execution phase for apt/rosdep, then
-returns ownership of generated artifacts to the `ros` development user.
+This builds the complete workspace with dependencies already installed in the
+Docker image. `rosdep update` and `rosdep install` run during `docker-build.sh`,
+using the package manifests under `src/`. This includes
+`ament_cmake_vendor_package` through rosdep. The `nvidia-cuda` rosdep key is
+skipped because CUDA is installed explicitly in the image. `pybind11-dev` is
+resolved normally through rosdep/apt. Rebuild the image after changing package
+dependencies or rosdep manifests.
 
 ### Run tests
 

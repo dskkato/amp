@@ -50,6 +50,20 @@ RUN --mount=type=cache,target=/root/.cache/pip \
       "torch==${PYTORCH_VERSION}" \
       --index-url "${PYTORCH_INDEX_URL}"
 
+# Resolve workspace dependencies while building the image. The source tree is
+# copied only for rosdep; the live workspace is still bind-mounted by Compose.
+COPY src/ /tmp/amp-rosdep/src/
+RUN source "/opt/ros/${ROS_DISTRO}/setup.bash" \
+    && rosdep update --rosdistro "${ROS_DISTRO}" \
+    && apt-get update \
+    && rosdep install \
+      --from-paths /tmp/amp-rosdep/src \
+      --ignore-src \
+      --rosdistro "${ROS_DISTRO}" \
+      --skip-keys "nvidia-cuda" \
+      -r -y \
+    && rm -rf /tmp/amp-rosdep /var/lib/apt/lists/*
+
 ARG DEV_USER=ubuntu
 ARG DEV_UID=1000
 ARG DEV_GID=1000
