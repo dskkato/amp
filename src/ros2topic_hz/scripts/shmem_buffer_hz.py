@@ -15,11 +15,11 @@ from rclpy.utilities import remove_ros_args
 from sensor_msgs.msg import Image
 
 
-class SharedBufferHz(Node):
-    """Count Image arrivals while requiring the shared_buffer backend."""
+class ShmemBufferHz(Node):
+    """Count Image arrivals while requiring the shmem buffer backend."""
 
     def __init__(self, topic: str, interval: float, acceptable_backend: str) -> None:
-        super().__init__('ros2topic_shared_buffer_hz')
+        super().__init__('ros2topic_shmem_buffer_hz')
         self._topic = topic
         self._interval = interval
         self._acceptable_backend = acceptable_backend
@@ -65,14 +65,14 @@ def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument('--topic', default='/image_raw')
     parser.add_argument('--interval', type=float, default=1.0)
-    parser.add_argument('--accept-buffer-backend', default='shared_buffer')
+    parser.add_argument('--accept-buffer-backend', default='shmem')
     cli_args = remove_ros_args(args=sys.argv)[1:]
     args = parser.parse_args(cli_args)
     if args.interval <= 0.0:
         parser.error('--interval must be positive')
 
     rclpy.init(args=sys.argv)
-    node = SharedBufferHz(args.topic, args.interval, args.accept_buffer_backend)
+    node = ShmemBufferHz(args.topic, args.interval, args.accept_buffer_backend)
     try:
         rclpy.spin(node)
     finally:

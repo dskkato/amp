@@ -12,7 +12,7 @@ def generate_launch_description():
         DeclareLaunchArgument('frame_rate', default_value='30.0'),
         DeclareLaunchArgument('pixel_format', default_value='auto'),
         DeclareLaunchArgument('output_encoding', default_value='bgr8'),
-        DeclareLaunchArgument('use_shared_buffer', default_value='true'),
+        DeclareLaunchArgument('use_shmem_buffer', default_value='true'),
         Node(
             package='v4l2_camera',
             executable='v4l2_camera_node',
@@ -30,7 +30,7 @@ def generate_launch_description():
                 'frame_rate': LaunchConfiguration('frame_rate'),
                 'pixel_format': LaunchConfiguration('pixel_format'),
                 'output_encoding': LaunchConfiguration('output_encoding'),
-                'use_shared_buffer': LaunchConfiguration('use_shared_buffer'),
+                'use_shmem_buffer': LaunchConfiguration('use_shmem_buffer'),
             }],
         ),
     ])

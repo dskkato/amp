@@ -2,6 +2,6 @@
 	path = src/rosidl_buffer_backends
 	url = https://github.com/dskkato/rosidl_buffer_backends.git
 
-[submodule "src/shared_buffer_backend"]
-	path = src/shared_buffer_backend
-	url = https://github.com/dskkato/shared_buffer_backend.git
+[submodule "src/shmem_buffer_backend"]
+	path = src/shmem_buffer_backend
+	url = https://github.com/dskkato/shmem_buffer_backend.git

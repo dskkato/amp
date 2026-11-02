@@ -13,9 +13,9 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>
-  <depend>shared_buffer</depend>
+  <depend>shmem_buffer</depend>
   <depend>cuda_buffer</depend>
-  <exec_depend>shared_buffer_backend</exec_depend>
+  <exec_depend>shmem_buffer_backend</exec_depend>
   <exec_depend>cuda_buffer_backend</exec_depend>
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>

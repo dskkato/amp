@@ -62,7 +62,7 @@ private:
   std::string topic_;
   std::string frame_id_;
   std::string output_encoding_;
-  bool use_shared_buffer_{true};
+  bool use_shmem_buffer_{true};
   bool diagnostics_{false};
   std::uint64_t diagnostics_period_frames_{30};
   int poll_timeout_ms_{1000};

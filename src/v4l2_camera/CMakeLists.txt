@@ -13,7 +13,7 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclcpp_components REQUIRED)
 find_package(sensor_msgs REQUIRED)
-find_package(shared_buffer REQUIRED)
+find_package(shmem_buffer REQUIRED)
 find_package(JPEG REQUIRED)
 include(CheckLanguage)
 check_language(CUDA)
@@ -33,7 +33,7 @@ target_link_libraries(v4l2_camera_component
   rclcpp::rclcpp
   rclcpp_components::component
   ${sensor_msgs_TARGETS}
-  shared_buffer::shared_buffer
+  shmem_buffer::shmem_buffer
   JPEG::JPEG
 )
 
@@ -81,7 +81,7 @@ if(BUILD_TESTING)
   endif()
 endif()
 
-ament_export_dependencies(rclcpp rclcpp_components sensor_msgs shared_buffer JPEG)
+ament_export_dependencies(rclcpp rclcpp_components sensor_msgs shmem_buffer JPEG)
 ament_export_include_directories(include)
 ament_export_targets(v4l2_camera_targets HAS_LIBRARY_TARGET)
 
