@@ -41,9 +41,9 @@ install(
 )
 
 install(
-  PROGRAMS scripts/shared_buffer_hz.py
+  PROGRAMS scripts/shmem_buffer_hz.py
   DESTINATION lib/${PROJECT_NAME}
-  RENAME ros2topic_shared_buffer_hz
+  RENAME ros2topic_shmem_buffer_hz
 )
 
 include(CheckLanguage)

@@ -18,7 +18,7 @@
 
 #include "v4l2_camera/pixel_converter.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
-#include "shared_buffer/shared_buffer_api.hpp"
+#include "shmem_buffer/shmem_buffer_api.hpp"
 
 namespace v4l2_camera
 {
@@ -30,7 +30,7 @@ V4L2CameraNode::V4L2CameraNode(const rclcpp::NodeOptions & options)
   topic_ = declare_parameter<std::string>("topic", "image_raw");
   frame_id_ = declare_parameter<std::string>("frame_id", "camera_optical_frame");
   output_encoding_ = declare_parameter<std::string>("output_encoding", "bgr8");
-  use_shared_buffer_ = declare_parameter<bool>("use_shared_buffer", true);
+  use_shmem_buffer_ = declare_parameter<bool>("use_shmem_buffer", true);
   diagnostics_ = declare_parameter<bool>("diagnostics", false);
   const auto diagnostics_period = declare_parameter<int>("diagnostics_period_frames", 30);
   const auto width = declare_parameter<int>("image_width", 640);
@@ -64,7 +64,7 @@ V4L2CameraNode::V4L2CameraNode(const rclcpp::NodeOptions & options)
     device_.c_str(), capture_->width(), capture_->height(),
     capture_->pixel_format() == V4L2_PIX_FMT_MJPEG ? "MJPEG" : "YUYV",
     publisher_->get_topic_name(), output_encoding_.c_str(),
-    use_shared_buffer_ ? " using shared_buffer" : "");
+    use_shmem_buffer_ ? " using shmem_buffer" : "");
 
   capture_thread_ = std::thread(&V4L2CameraNode::capture_loop, this);
 }
@@ -151,16 +151,16 @@ void V4L2CameraNode::publish_frame(const CapturedFrame & frame, FrameTiming & ti
   message.step = static_cast<std::uint32_t>(step);
 
   const auto allocation_start = Clock::now();
-  if (use_shared_buffer_) {
-    message.data = shared_buffer::allocate_buffer(byte_count);
+  if (use_shmem_buffer_) {
+    message.data = shmem_buffer::allocate_buffer(byte_count);
   } else {
     message.data.resize(byte_count);
   }
   timing.allocation = Clock::now() - allocation_start;
 
   const auto conversion_start = Clock::now();
-  if (use_shared_buffer_) {
-    auto write = shared_buffer::from_output_buffer(message.data);
+  if (use_shmem_buffer_) {
+    auto write = shmem_buffer::from_output_buffer(message.data);
     convert_frame(frame, output_encoding_, write.get_ptr(), byte_count);
   } else {
     convert_frame(frame, output_encoding_, message.data.data(), byte_count);

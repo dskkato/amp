@@ -15,8 +15,8 @@
   <depend>cuda_buffer</depend>
   <depend>v4l2_camera</depend>
   <exec_depend>rclpy</exec_depend>
-  <exec_depend>shared_buffer_backend</exec_depend>
-  <exec_depend>shared_buffer_backend_py</exec_depend>
+  <exec_depend>shmem_buffer_backend</exec_depend>
+  <exec_depend>shmem_buffer_backend_py</exec_depend>
   <exec_depend>cuda_buffer_backend</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>

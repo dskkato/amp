@@ -3,14 +3,8 @@
 ROS 2 camera publisher for a Linux V4L2 device. It captures frames from a
 laptop or USB camera and publishes `sensor_msgs/msg/Image` on `image_raw`.
 
-Until the fix in [rosidl_typesupport_fastrtps#164](https://github.com/ros2/rosidl_typesupport_fastrtps/pull/164)
-is available in the installed ROS 2 packages, the run commands below set the
-publisher's `serialize_buffer_with_endpoint` or the subscriber's
-`deserialize_buffer_with_endpoint` logger to `WARN` to suppress repeated Fast
-CDR debug messages while preserving other loggers' levels.
-
 The node supports YUYV and MJPEG V4L2 input. By default it converts frames to
-`bgr8` and allocates the image payload with the workspace's `shared_buffer`
+`bgr8` and allocates the image payload with the workspace's `shmem_buffer`
 backend.
 
 ## Run
@@ -20,8 +14,7 @@ Build the workspace and source the generated setup file:
 ```bash
 source /opt/ros/lyrical/setup.bash
 source install/setup.bash
-ros2 run v4l2_camera v4l2_camera_node --ros-args \
-  --log-level serialize_buffer_with_endpoint:=warn
+ros2 run v4l2_camera v4l2_camera_node
 ```
 
 The default device is `/dev/video0`, and the default topic is
@@ -34,8 +27,7 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args \
   -p image_height:=480 \
   -p frame_rate:=30.0 \
   -p output_encoding:=bgr8 \
-  -p use_shared_buffer:=true \
-  --log-level serialize_buffer_with_endpoint:=warn
+  -p use_shmem_buffer:=true
 ```
 
 The launch file exposes the same camera parameters:
@@ -52,8 +44,7 @@ re-queueing the V4L2 buffer:
 ```bash
 ros2 run v4l2_camera v4l2_camera_node --ros-args \
   -p diagnostics:=true \
-  -p diagnostics_period_frames:=30 \
-  --log-level serialize_buffer_with_endpoint:=warn
+  -p diagnostics_period_frames:=30
 ```
 
 ## Frequency measurement
@@ -61,40 +52,35 @@ ros2 run v4l2_camera v4l2_camera_node --ros-args \
 The workspace includes the `ros2topic_hz` package under `src/ros2topic_hz`.
 For inter-process communication, start the camera in one process and measure
 it from another process. The generic Image subscriber reports the backend
-observed by each callback and can explicitly accept the `shared_buffer`
+observed by each callback and can explicitly accept the `shmem`
 backend:
 
 ```bash
 ros2 run v4l2_camera v4l2_camera_node --ros-args \
   -p pixel_format:=YUYV \
-  -p use_shared_buffer:=true \
-  --log-level serialize_buffer_with_endpoint:=warn
+  -p use_shmem_buffer:=true
 
 ros2 run ros2topic_hz ros2topic_hz \
   --topic /image_raw \
   --interval 1.0 \
-  --accept-buffer-backend shared_buffer \
-  --ros-args --log-level deserialize_buffer_with_endpoint:=warn
+  --accept-buffer-backend shmem
 ```
 
 The equivalent Python measurement uses `rclpy`'s typed Image subscription
-with `acceptable_buffer_backends='shared_buffer'`:
+with `acceptable_buffer_backends='shmem'`:
 
 ```bash
-ros2 run ros2topic_hz ros2topic_shared_buffer_hz \
+ros2 run ros2topic_hz ros2topic_shmem_buffer_hz \
   --topic /image_raw \
-  --interval 1.0 \
-  --ros-args --log-level deserialize_buffer_with_endpoint:=warn
+  --interval 1.0
 ```
 
 For intra-process communication, use the benchmark executable. It creates
 the camera publisher and a typed image subscriber in one process, with
-`use_shared_buffer=false` and the same 640x480 YUYV/30 fps settings:
+`use_shmem_buffer=false` and the same 640x480 YUYV/30 fps settings:
 
 ```bash
-ros2 run ros2topic_hz ros2topic_intra_process_hz --ros-args \
-  --log-level serialize_buffer_with_endpoint:=warn \
-  --log-level deserialize_buffer_with_endpoint:=warn
+ros2 run ros2topic_hz ros2topic_intra_process_hz
 ```
 
 ## CUDA path
@@ -110,13 +96,11 @@ ros2 run v4l2_camera v4l2_camera_cuda_node --ros-args \
   -p video_device:=/dev/video0 \
   -p pixel_format:=YUYV \
   -p frame_rate:=30.0 \
-  -p diagnostics:=true \
-  --log-level serialize_buffer_with_endpoint:=warn
+  -p diagnostics:=true
 
 ros2 run ros2topic_hz ros2topic_cuda_hz \
   --topic /image_raw \
-  --interval 1.0 \
-  --ros-args --log-level deserialize_buffer_with_endpoint:=warn
+  --interval 1.0
 ```
 
 The camera diagnostics include the GPU event time covering the Host-to-Device

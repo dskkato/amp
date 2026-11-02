@@ -6,7 +6,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
       args:
-        ROS_IMAGE: ${ROS_IMAGE:-osrf/ros:lyrical-desktop-resolute}
+        ROS_IMAGE: ${ROS_IMAGE:-ros:lyrical-ros-base-resolute}
         ROS_DISTRO: ${ROS_DISTRO:-lyrical}
         CUDA_REPO_VERSION: ${CUDA_REPO_VERSION:-13-4}
         PYTORCH_VERSION: ${PYTORCH_VERSION:-2.14.0}

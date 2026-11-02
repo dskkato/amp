@@ -72,7 +72,7 @@ int main(int argc, char ** argv)
   rclcpp::NodeOptions camera_options;
   camera_options.use_intra_process_comms(true);
   camera_options.parameter_overrides({
-    rclcpp::Parameter("use_shared_buffer", false),
+    rclcpp::Parameter("use_shmem_buffer", false),
     rclcpp::Parameter("video_device", "/dev/video0"),
     rclcpp::Parameter("pixel_format", "YUYV"),
     rclcpp::Parameter("image_width", 640),

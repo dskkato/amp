@@ -1,7 +1,7 @@
 # ROS 2 Lyrical (Ubuntu 26.04 Resolute) + CUDA development environment.
 # The host only needs Docker and an NVIDIA Container Toolkit-enabled runtime.
 
-ARG ROS_IMAGE=osrf/ros:lyrical-desktop-resolute
+ARG ROS_IMAGE=ros:lyrical-ros-base-resolute
 FROM ${ROS_IMAGE}
 
 ARG ROS_DISTRO=lyrical

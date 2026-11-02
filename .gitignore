@@ -1,6 +1,6 @@
 # These ROS packages are managed as root-project git submodules.
 /src/rosidl_buffer_backends/
-/src/shared_buffer_backend/
+/src/shmem_buffer_backend/
 
 # ROS/colcon generated artifacts.
 /build/
