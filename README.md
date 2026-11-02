@@ -83,7 +83,7 @@ image. Keep these values consistent:
 
 ```bash
 ROS_DISTRO=lyrical \
-ROS_IMAGE=ros:lyrical-perception-resolute \
+ROS_IMAGE=ros:lyrical-ros-base-resolute \
   ./scripts/docker-build.sh
 ```
 
