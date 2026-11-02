@@ -1,8 +1,9 @@
 ## ROS 2 Lyrical + rosidl buffer backend development
 
 This workspace is prepared for ROS 2 Lyrical on Ubuntu 26.04 inside Docker.
-The image is based on the official ROS 2 desktop image and adds the NVIDIA
-CUDA toolkit (`nvcc`) plus a CUDA-enabled PyTorch wheel. The host ROS, CUDA
+The image is based on the official ROS 2 `ros-base` image
+(`ros:lyrical-ros-base-resolute`) and adds the NVIDIA CUDA toolkit
+(`nvcc`) plus a CUDA-enabled PyTorch wheel. The host ROS, CUDA
 toolkit, PyTorch, and rosdep packages are not modified or installed.
 
 The current image is intentionally limited to `linux/amd64`: the CUDA
@@ -82,7 +83,7 @@ image. Keep these values consistent:
 
 ```bash
 ROS_DISTRO=lyrical \
-ROS_IMAGE=osrf/ros:lyrical-desktop-resolute \
+ROS_IMAGE=ros:lyrical-perception-resolute \
   ./scripts/docker-build.sh
 ```
 
