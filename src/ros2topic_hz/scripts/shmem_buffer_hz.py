@@ -9,6 +9,7 @@ import sys
 import time
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.utilities import remove_ros_args
@@ -75,6 +76,9 @@ def main() -> None:
     node = ShmemBufferHz(args.topic, args.interval, args.accept_buffer_backend)
     try:
         rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        # Exited by a signal, for example `timeout` or Ctrl-C.
+        pass
     finally:
         node.destroy_node()
         rclpy.shutdown()
