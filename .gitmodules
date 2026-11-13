@@ -1,6 +1,6 @@
 [submodule "src/rosidl_buffer_backends"]
 	path = src/rosidl_buffer_backends
-	url = https://github.com/dskkato/rosidl_buffer_backends.git
+	url = https://github.com/ros2/rosidl_buffer_backends.git
 
 [submodule "src/shmem_buffer_backend"]
 	path = src/shmem_buffer_backend
