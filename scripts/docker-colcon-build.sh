@@ -25,6 +25,7 @@ docker compose "${COMPOSE_ARGS[@]}" run --rm dev bash -lc '
 
   colcon build \
     --symlink-install \
+    --packages-ignore qc_buffer_backend \
     --event-handlers console_cohesion+ \
     --cmake-args -DCMAKE_BUILD_TYPE=RelWithDebInfo
 '

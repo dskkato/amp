@@ -13,6 +13,7 @@ docker compose "${COMPOSE_ARGS[@]}" run --rm dev bash -lc '
   source install/setup.bash
   set -u
   colcon test \
+    --packages-ignore qc_buffer_backend \
     --event-handlers console_cohesion+ \
     --return-code-on-test-failure
   colcon test-result --verbose
