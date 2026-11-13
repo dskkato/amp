@@ -109,13 +109,14 @@ dependencies or rosdep manifests.
 
 The CUDA tests use the GPU when the container is started with the NVIDIA
 runtime. Tests that require only CPU/shared memory still run in the same
-workspace and use the mounted named Docker volumes for `build/`, `install/`,
-and `log/`, backed by Docker named volumes so generated artifacts do not need
-to be installed on the host.
+workspace. The `build/`, `install/`, and `log/` directories are stored in the
+host workspace and bind-mounted into the container, so generated artifacts
+remain visible on the host and can be inspected or removed there. The
+`.gitignore` excludes these generated directories.
 
-The named volumes are scoped under the Compose project name `amp`. Override
-that name with `COMPOSE_PROJECT_NAME` when multiple independent copies of the
-workspace must coexist.
+The Compose project name scopes the remaining named cache volumes. Override
+`COMPOSE_PROJECT_NAME` when multiple independent copies of the workspace must
+coexist.
 
 ### Open a shell
 

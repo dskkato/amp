@@ -44,16 +44,10 @@ services:
       ROS_DOMAIN_ID: ${ROS_DOMAIN_ID:-0}
     volumes:
       - ..:/workspaces/amp:rw
-      - amp-build:/workspaces/amp/build
-      - amp-install:/workspaces/amp/install
-      - amp-log:/workspaces/amp/log
       - amp-colcon-cache:/home/${DEV_USER:-ubuntu}/.colcon
       - amp-rosdep-cache:/home/${DEV_USER:-ubuntu}/.ros
     command: ["bash"]
 
 volumes:
-  amp-build:
-  amp-install:
-  amp-log:
   amp-colcon-cache:
   amp-rosdep-cache:
